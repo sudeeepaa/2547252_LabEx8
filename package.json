@@ -1,0 +1,32 @@
+{
+  "name": "eventease",
+  "version": "1.0.0",
+  "description": "Event Management System - Full Stack Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "setup": "node setup.js",
+    "backup": "node backup.js",
+    "test": "node test-storage.js"
+  },
+  "keywords": [
+    "event-management",
+    "nodejs",
+    "express",
+    "tailwindcss"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
