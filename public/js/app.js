@@ -3,7 +3,11 @@ class EventEase {
         this.events = [];
         this.categories = [];
         this.currentSection = 'dashboard';
-        this.unsplashHelper = new UnsplashHelper(UnsplashConfig); 
+        this.unsplashHelper = new UnsplashHelper(UnsplashConfig);
+        this.storage = {
+            save: () => {},
+            load: () => this.events,
+        };
         this.init();
     }
 
@@ -13,6 +17,11 @@ class EventEase {
         this.setupMobileMenu();
         this.showSection('dashboard');
         this.unsplashHelper.init(); 
+    }
+
+    isLocalhost() {
+        const hostname = window.location.hostname;
+        return hostname === 'localhost' || hostname === '127.0.0.1';
     }
 
     setupEventListeners() {
@@ -47,9 +56,9 @@ class EventEase {
                 mobileMenu.classList.toggle('hidden');
             });
 
-            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
                 link.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
+                    this.showSection(link.getAttribute('onclick').match(/'(.*)'/)[1]);
                 });
             });
         }
@@ -59,26 +68,43 @@ class EventEase {
         try {
             this.showLoading(true);
             
-            const [eventsResponse, categoriesResponse, statsResponse] = await Promise.all([
-                this.apiCall('/api/events'),
-                this.apiCall('/api/categories'),
-                this.apiCall('/api/stats')
-            ]);
+            if (this.isLocalhost()) {
+                const [eventsResponse, categoriesResponse, statsResponse] = await Promise.all([
+                    this.apiCall('/api/events'),
+                    this.apiCall('/api/categories'),
+                    this.apiCall('/api/stats')
+                ]);
+                
+                if (eventsResponse.success) {
+                    this.events = eventsResponse.data;
+                }
+                if (categoriesResponse.success) {
+                    this.categories = categoriesResponse.data;
+                }
+                if (statsResponse.success) {
+                    this.updateDashboardStats(statsResponse.data);
+                }
 
-            if (eventsResponse.success) {
-                this.events = eventsResponse.data;
-                await this.renderEvents();
-                await this.renderRecentEvents();
+            } else {
+                // For static deployment, load data from a local JSON file
+                const eventsResponse = await fetch('data/events.json');
+                const eventsData = await eventsResponse.json();
+
+                this.events = eventsData;
+                this.categories = [...new Set(this.events.map(e => e.category))];
+                
+                const stats = {
+                    totalEvents: this.events.length,
+                    totalAttendees: this.events.reduce((sum, event) => sum + (event.attendees || 0), 0),
+                    upcomingEvents: this.events.filter(e => e.status === 'upcoming').length,
+                    totalRevenue: this.events.reduce((sum, event) => sum + (event.price * event.attendees || 0), 0)
+                };
+                this.updateDashboardStats(stats);
             }
 
-            if (categoriesResponse.success) {
-                this.categories = categoriesResponse.data;
-                this.populateCategoryFilters();
-            }
-
-            if (statsResponse.success) {
-                this.updateDashboardStats(statsResponse.data);
-            }
+            await this.renderEvents();
+            await this.renderRecentEvents();
+            this.populateCategoryFilters();
 
         } catch (error) {
             console.error('Error loading initial data:', error);
@@ -125,16 +151,14 @@ class EventEase {
             targetSection.classList.remove('hidden');
         }
 
-        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
-            link.classList.remove('active', 'bg-dark-highlight', 'text-white');
-            link.classList.add('text-dark-subtle-text', 'hover:text-dark-text');
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
         });
 
-        const activeLinks = document.querySelectorAll(`[onclick="showSection('${sectionName}')"]`);
-        activeLinks.forEach(link => {
-            link.classList.remove('text-dark-subtle-text', 'hover:text-dark-text');
-            link.classList.add('active', 'bg-dark-highlight', 'text-white');
-        });
+        const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
 
         this.currentSection = sectionName;
 
@@ -331,29 +355,38 @@ class EventEase {
             price: parseFloat(formData.get('price')),
             organizer: formData.get('organizer')
         };
-
-        try {
-            this.showLoading(true);
-            
-            const response = await this.apiCall('/api/events', {
-                method: 'POST',
-                body: JSON.stringify(eventData)
-            });
-
-            if (response.success) {
-                this.showToast('🎉 Event created successfully!', 'success');
-                this.events.unshift(response.data);
-                this.categories = [...new Set(this.events.map(e => e.category))];
-                this.populateCategoryFilters();
-                this.resetForm();
-                this.showSection('events');
-                await this.renderEvents();
-                await this.renderRecentEvents();
+        
+        if (this.isLocalhost()) {
+            try {
+                const response = await this.apiCall('/api/events', {
+                    method: 'POST',
+                    body: JSON.stringify(eventData)
+                });
+                if (response.success) {
+                    this.showToast('🎉 Event created successfully!', 'success');
+                    this.events.unshift(response.data);
+                    this.categories = [...new Set(this.events.map(e => e.category))];
+                    this.populateCategoryFilters();
+                    this.resetForm();
+                    this.showSection('events');
+                    await this.renderEvents();
+                    await this.renderRecentEvents();
+                }
+            } catch (error) {
+                this.showToast(error.message || 'Error creating event', 'error');
             }
-        } catch (error) {
-            this.showToast(error.message || 'Error creating event', 'error');
-        } finally {
-            this.showLoading(false);
+        } else {
+            // For static deployment, we simulate success and update the local data
+            this.showToast('🎉 Event created successfully! (Simulated)', 'success');
+            
+            const newEvent = { ...eventData, id: Date.now().toString(), attendees: 0, status: 'upcoming' };
+            this.events.unshift(newEvent);
+            this.categories = [...new Set(this.events.map(e => e.category))];
+            this.populateCategoryFilters();
+            this.resetForm();
+            this.showSection('events');
+            await this.renderEvents();
+            await this.renderRecentEvents();
         }
     }
 
@@ -365,15 +398,25 @@ class EventEase {
     }
 
     async viewEvent(eventId) {
-        try {
-            const response = await this.apiCall(`/api/events/${eventId}`);
-            if (response.success) {
-                const event = response.data;
+        if (this.isLocalhost()) {
+            try {
+                const response = await this.apiCall(`/api/events/${eventId}`);
+                if (response.success) {
+                    const event = response.data;
+                    const imageUrl = await this.getEventImage(event.category);
+                    this.showEventModal({ ...event, imageUrl });
+                }
+            } catch (error) {
+                this.showToast('Error loading event details', 'error');
+            }
+        } else {
+            const event = this.events.find(e => e.id === eventId);
+            if (event) {
                 const imageUrl = await this.getEventImage(event.category);
                 this.showEventModal({ ...event, imageUrl });
+            } else {
+                this.showToast('Error loading event details', 'error');
             }
-        } catch (error) {
-            this.showToast('Error loading event details', 'error');
         }
     }
 
@@ -471,25 +514,38 @@ class EventEase {
     }
 
     async registerForEvent(eventId) {
-        try {
-            const response = await this.apiCall(`/api/events/${eventId}/register`, {
-                method: 'POST'
-            });
-
-            if (response.success) {
+        if (this.isLocalhost()) {
+            try {
+                const response = await this.apiCall(`/api/events/${eventId}/register`, {
+                    method: 'POST'
+                });
+    
+                if (response.success) {
+                    this.showToast('🎉 Successfully registered for event!', 'success');
+                    this.closeModal();
+                    
+                    const eventIndex = this.events.findIndex(e => e.id === eventId);
+                    if (eventIndex !== -1) {
+                        this.events[eventIndex] = response.data;
+                    }
+                    
+                    await this.renderEvents();
+                    await this.renderRecentEvents();
+                }
+            } catch (error) {
+                this.showToast(error.message || 'Error registering for event', 'error');
+            }
+        } else {
+            const event = this.events.find(e => e.id === eventId);
+            if (event && event.status === 'upcoming' && event.attendees < event.capacity) {
+                event.attendees += 1;
                 this.showToast('🎉 Successfully registered for event!', 'success');
                 this.closeModal();
-                
-                const eventIndex = this.events.findIndex(e => e.id === eventId);
-                if (eventIndex !== -1) {
-                    this.events[eventIndex] = response.data;
-                }
-                
                 await this.renderEvents();
                 await this.renderRecentEvents();
+            } else {
+                this.showToast('Error registering for event', 'error');
             }
-        } catch (error) {
-            this.showToast(error.message || 'Error registering for event', 'error');
         }
     }
 
