@@ -126,14 +126,14 @@ class EventEase {
         }
 
         document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
-            link.classList.remove('active', 'bg-primary', 'text-white');
-            link.classList.add('text-gray-600', 'hover:text-gray-900');
+            link.classList.remove('active', 'bg-dark-highlight', 'text-white');
+            link.classList.add('text-dark-subtle-text', 'hover:text-dark-text');
         });
 
         const activeLinks = document.querySelectorAll(`[onclick="showSection('${sectionName}')"]`);
         activeLinks.forEach(link => {
-            link.classList.remove('text-gray-600', 'hover:text-gray-900');
-            link.classList.add('active', 'bg-primary', 'text-white');
+            link.classList.remove('text-dark-subtle-text', 'hover:text-dark-text');
+            link.classList.add('active', 'bg-dark-highlight', 'text-white');
         });
 
         this.currentSection = sectionName;
@@ -190,43 +190,37 @@ class EventEase {
     }
 
     createEventCard(event) {
-        const statusColor = event.status === 'upcoming' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-gray-500 to-gray-600';
+        const statusColor = event.status === 'upcoming' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-dark-subtle-text/50 to-gray-600';
         const statusText = event.status === 'upcoming' ? 'Upcoming' : 'Completed';
         
         return `
-            <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 card-hover border border-gray-100 overflow-hidden group">
+            <div class="bg-dark-card rounded-2xl shadow-xl border border-dark-border overflow-hidden event-card group">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="${event.imageUrl}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <img src="${event.imageUrl}" alt="${event.title}" class="w-full h-full object-cover card-image transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-bg/80 via-transparent to-transparent"></div>
                     <div class="absolute top-4 right-4">
                         <span class="px-3 py-1 rounded-full text-xs font-semibold text-white ${statusColor} shadow-lg">
                             ${statusText}
                         </span>
                     </div>
-                    <div class="absolute bottom-4 left-4">
-                        <div class="flex items-center space-x-2 text-white">
-                            <i class="fas fa-map-marker-alt text-sm"></i>
-                            <span class="text-sm font-medium">${event.location}</span>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="p-6">
                     <div class="mb-4">
-                        <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">${event.title}</h3>
-                        <p class="text-gray-600 text-sm line-clamp-2">${event.description}</p>
+                        <h3 class="text-xl font-bold text-dark-text mb-2 line-clamp-2 group-hover:text-primary transition-colors">${event.title}</h3>
+                        <p class="text-dark-subtle-text text-sm line-clamp-2">${event.description}</p>
                     </div>
                     
                     <div class="space-y-3 mb-6">
-                        <div class="flex items-center text-sm text-gray-500">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-calendar text-blue-600 text-sm"></i>
+                        <div class="flex items-center text-sm text-dark-subtle-text">
+                            <div class="w-8 h-8 bg-purple-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-calendar-day text-secondary text-sm"></i>
                             </div>
                             <span>${this.formatDate(event.date)} ${event.time ? `at ${event.time}` : ''}</span>
                         </div>
-                        <div class="flex items-center text-sm text-gray-500">
-                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-tag text-purple-600 text-sm"></i>
+                        <div class="flex items-center text-sm text-dark-subtle-text">
+                            <div class="w-8 h-8 bg-purple-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-tag text-secondary text-sm"></i>
                             </div>
                             <span>${event.category}</span>
                         </div>
@@ -234,29 +228,29 @@ class EventEase {
                     
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-users text-green-600 text-sm"></i>
+                            <div class="w-8 h-8 bg-purple-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-secondary text-sm"></i>
                             </div>
-                            <span class="text-sm text-gray-600">
-                                <span class="font-semibold text-gray-900">${event.attendees}</span> / ${event.capacity}
+                            <span class="text-sm text-dark-subtle-text">
+                                <span class="font-semibold text-dark-text">${event.attendees}</span> / ${event.capacity}
                             </span>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-primary">
+                            <div class="text-lg font-bold text-secondary">
                                 ${event.price > 0 ? `$${event.price}` : 'Free'}
                             </div>
-                            <div class="text-xs text-gray-500">per person</div>
+                            <div class="text-xs text-dark-subtle-text">per person</div>
                         </div>
                     </div>
                     
                     <div class="flex space-x-3">
                         <button onclick="eventEase.viewEvent('${event.id}')" 
-                                class="flex-1 bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-3 rounded-xl font-semibold hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                class="button button-primary flex-1">
                             <i class="fas fa-eye mr-2"></i>View Details
                         </button>
                         ${event.status === 'upcoming' ? `
                             <button onclick="eventEase.registerForEvent('${event.id}')" 
-                                    class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl font-semibold hover:from-green-500/90 hover:to-green-600/90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                    class="button button-secondary flex-1">
                                 <i class="fas fa-ticket-alt mr-2"></i>Register
                             </button>
                         ` : ''}
@@ -303,11 +297,11 @@ class EventEase {
         if (filteredEvents.length === 0) {
             eventsGrid.innerHTML = `
                 <div class="col-span-full text-center py-16">
-                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-search text-4xl text-gray-300"></i>
+                    <div class="w-24 h-24 bg-dark-highlight rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-4xl text-dark-subtle-text/50"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No events found</h3>
-                    <p class="text-gray-500">Try adjusting your search criteria or browse all events</p>
+                    <h3 class="text-xl font-semibold text-dark-subtle-text mb-2">No events found</h3>
+                    <p class="text-dark-subtle-text/70">Try adjusting your search criteria or browse all events</p>
                 </div>
             `;
             return;
@@ -375,8 +369,8 @@ class EventEase {
             const response = await this.apiCall(`/api/events/${eventId}`);
             if (response.success) {
                 const event = response.data;
-                const imageUrl = await this.getEventImage(event.category); // Fetch image for modal
-                this.showEventModal({ ...event, imageUrl }); // Pass event with image URL
+                const imageUrl = await this.getEventImage(event.category);
+                this.showEventModal({ ...event, imageUrl });
             }
         } catch (error) {
             this.showToast('Error loading event details', 'error');
@@ -395,70 +389,70 @@ class EventEase {
                 <div class="space-y-6">
                     <div class="relative h-48 rounded-xl overflow-hidden">
                         <img src="${event.imageUrl}" alt="${event.title}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-bg/80 to-transparent"></div>
                         <div class="absolute bottom-4 left-4">
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold text-white ${event.status === 'upcoming' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-gray-500 to-gray-600'}">
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold text-white ${event.status === 'upcoming' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-dark-subtle-text/50 to-gray-600'}">
                                 ${event.status === 'upcoming' ? 'Upcoming' : 'Completed'}
                             </span>
                         </div>
                     </div>
                     
-                    <p class="text-gray-600 text-lg leading-relaxed">${event.description}</p>
+                    <p class="text-dark-subtle-text text-lg leading-relaxed">${event.description}</p>
                     
                     <div class="grid grid-cols-2 gap-6">
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-calendar text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Date & Time</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-calendar-day text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Date & Time</span>
+                                <p class="text-dark-subtle-text">${this.formatDate(event.date)} ${event.time ? `at ${event.time}` : ''}</p>
                             </div>
-                            <p class="text-gray-600">${this.formatDate(event.date)} ${event.time ? `at ${event.time}` : ''}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-map-marker-alt text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Location</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-map-marker-alt text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Location</span>
+                                <p class="text-dark-subtle-text">${event.location}</p>
                             </div>
-                            <p class="text-gray-600">${event.location}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-tag text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Category</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-tag text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Category</span>
+                                <p class="text-dark-subtle-text">${event.category}</p>
                             </div>
-                            <p class="text-gray-600">${event.category}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-users text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Capacity</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-users text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Capacity</span>
+                                <p class="text-dark-subtle-text">${event.attendees}/${event.capacity}</p>
                             </div>
-                            <p class="text-gray-600">${event.attendees}/${event.capacity}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-dollar-sign text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Price</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-dollar-sign text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Price</span>
+                                <p class="text-dark-subtle-text">${event.price > 0 ? `$${event.price}` : 'Free'}</p>
                             </div>
-                            <p class="text-gray-600">${event.price > 0 ? `$${event.price}` : 'Free'}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-user text-primary mr-3"></i>
-                                <span class="font-semibold text-gray-700">Organizer</span>
+                        <div class="bg-dark-highlight rounded-xl p-4 flex items-start">
+                            <i class="fas fa-user-circle text-secondary text-lg mr-3 mt-1"></i>
+                            <div>
+                                <span class="font-semibold text-dark-text">Organizer</span>
+                                <p class="text-dark-subtle-text">${event.organizer}</p>
                             </div>
-                            <p class="text-gray-600">${event.organizer}</p>
                         </div>
                     </div>
                     
                     <div class="flex space-x-3 pt-6">
                         ${event.status === 'upcoming' ? `
                             <button onclick="eventEase.registerForEvent('${event.id}')" 
-                                    class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-500/90 hover:to-green-600/90 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                    class="button button-primary flex-1">
                                 <i class="fas fa-ticket-alt mr-2"></i>Register for Event
                             </button>
                         ` : ''}
                         <button onclick="eventEase.closeModal()" 
-                                class="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300">
+                                class="button button-reset flex-1">
                             Close
                         </button>
                     </div>
@@ -486,7 +480,6 @@ class EventEase {
                 this.showToast('🎉 Successfully registered for event!', 'success');
                 this.closeModal();
                 
-                // Update local event data
                 const eventIndex = this.events.findIndex(e => e.id === eventId);
                 if (eventIndex !== -1) {
                     this.events[eventIndex] = response.data;
@@ -510,6 +503,7 @@ class EventEase {
     renderStatistics() {
         const categoryChart = document.getElementById('category-chart');
         const monthlyChart = document.getElementById('monthly-chart');
+        const statusChart = document.getElementById('status-chart');
 
         if (categoryChart) {
             categoryChart.innerHTML = this.createCategoryChart();
@@ -517,6 +511,10 @@ class EventEase {
 
         if (monthlyChart) {
             monthlyChart.innerHTML = this.createMonthlyChart();
+        }
+
+        if (statusChart) {
+            statusChart.innerHTML = this.createStatusChart();
         }
     }
 
@@ -528,7 +526,7 @@ class EventEase {
 
         if (Object.keys(categoryCounts).length === 0) {
             return `
-                <div class="text-center text-gray-500">
+                <div class="text-center text-dark-subtle-text">
                     <i class="fas fa-chart-pie text-4xl mb-4"></i>
                     <p>No events to display</p>
                 </div>
@@ -537,18 +535,18 @@ class EventEase {
 
         const chartHTML = Object.entries(categoryCounts).map(([category, count]) => {
             const percentage = ((count / this.events.length) * 100).toFixed(1);
-            const colors = ['from-blue-500 to-blue-600', 'from-green-500 to-green-600', 'from-purple-500 to-purple-600', 'from-orange-500 to-orange-600', 'from-pink-500 to-pink-600', 'from-indigo-500 to-indigo-600'];
+            const colors = ['from-purple-500 to-purple-600', 'from-green-500 to-green-600', 'from-pink-500 to-pink-600', 'from-yellow-500 to-yellow-600', 'from-indigo-500 to-indigo-600', 'from-red-500 to-red-600'];
             const colorIndex = Object.keys(categoryCounts).indexOf(category) % colors.length;
             
             return `
-                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                <div class="flex items-center justify-between py-4 border-b border-dark-border">
                     <div class="flex items-center space-x-3">
                         <div class="w-4 h-4 bg-gradient-to-r ${colors[colorIndex]} rounded-full"></div>
-                        <span class="font-semibold text-gray-700">${category}</span>
+                        <span class="font-semibold text-dark-text">${category}</span>
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold text-primary">${count}</div>
-                        <div class="text-sm text-gray-500">${percentage}%</div>
+                        <div class="text-sm text-dark-subtle-text">${percentage}%</div>
                     </div>
                 </div>
             `;
@@ -570,7 +568,7 @@ class EventEase {
 
         if (Object.keys(monthlyCounts).length === 0) {
             return `
-                <div class="text-center text-gray-500">
+                <div class="text-center text-dark-subtle-text">
                     <i class="fas fa-chart-line text-4xl mb-4"></i>
                     <p>No events to display</p>
                 </div>
@@ -583,14 +581,56 @@ class EventEase {
             
             return `
                 <div class="flex items-center space-x-4 py-3">
-                    <div class="w-24 text-sm font-medium text-gray-700">${month}</div>
+                    <div class="w-24 text-sm font-medium text-dark-subtle-text">${month}</div>
                     <div class="flex-1">
-                        <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div class="bg-dark-highlight rounded-full h-3 overflow-hidden">
                             <div class="bg-gradient-to-r from-secondary to-green-600 h-full rounded-full transition-all duration-1000" style="width: ${barHeight}%"></div>
                         </div>
                     </div>
                     <div class="w-12 text-right">
                         <span class="text-lg font-bold text-secondary">${count}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="space-y-2">
+                ${chartHTML}
+            </div>
+        `;
+    }
+
+    createStatusChart() {
+        const statusCounts = this.events.reduce((acc, event) => {
+            acc[event.status] = (acc[event.status] || 0) + 1;
+            return acc;
+        }, {});
+
+        if (Object.keys(statusCounts).length === 0) {
+             return `
+                <div class="text-center text-dark-subtle-text">
+                    <i class="fas fa-chart-bar text-4xl mb-4"></i>
+                    <p>No events to display</p>
+                </div>
+            `;
+        }
+
+        const totalEvents = this.events.length;
+        const chartHTML = Object.entries(statusCounts).map(([status, count]) => {
+            const percentage = ((count / totalEvents) * 100).toFixed(1);
+            const statusColor = status === 'upcoming' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-dark-subtle-text/50 to-gray-600';
+            const statusText = status === 'upcoming' ? 'Upcoming' : 'Completed';
+
+            return `
+                <div class="flex items-center justify-between py-4 border-b border-dark-border">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-4 h-4 ${statusColor} rounded-full"></div>
+                        <span class="font-semibold text-dark-text">${statusText}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-secondary">${count}</div>
+                        <div class="text-sm text-dark-subtle-text">${percentage}%</div>
                     </div>
                 </div>
             `;
@@ -616,7 +656,7 @@ class EventEase {
 
         const toast = document.createElement('div');
         const bgColor = type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 
-                       type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-blue-600';
+                        type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-blue-600';
         
         toast.className = `${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl transform translate-x-full transition-all duration-500 backdrop-blur-sm`;
         toast.innerHTML = `
@@ -688,5 +728,3 @@ document.addEventListener('keydown', (e) => {
         closeModal();
     }
 });
-
-
