@@ -5,7 +5,7 @@ const path = require('path');
 const DataStorage = require('./data/storage');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT; 
 
 const dataStorage = new DataStorage();
 
